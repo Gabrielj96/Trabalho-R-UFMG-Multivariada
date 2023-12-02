@@ -1,0 +1,285 @@
+---
+title: "Seminário - Estatística Multivaridada Computacional"
+output: html_notebook
+---
+
+# Estatística Multivaridada Computacional: Teresina - Piauí
+
+![](pca%20teresina.png)
+
+**Gabriel Augusto Narciso Barreiros\
+Adriano\
+Nelson**
+
+# 0. Bibliotecas e configurações
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+library(readr)
+library(dplyr)
+library(FactoMineR)
+library(factoextra)
+library(corrplot)
+library(ggplot2)
+library(tidyverse)
+library(ggcorrplot)
+
+library(ggspatial)
+#library(ggsn)
+library(raster)
+#library(rgdal)
+library(sf)
+library(sp)
+library(GGally)
+library(stats)
+library(maps)
+library(psych)
+
+set.seed(111)
+options(scipen = 999)
+
+df_teresina = read.csv("SES_Teresina.csv")
+```
+
+# 1. Análise Descritiva
+
+## Tamanho populacional
+
+Cidades maiores tendem a ser mais heterogêneas do que cidades menores. Isso significa que as análises PCA realizadas em cidades maiores são mais propensas a identificar padrões complexos e não lineares.
+
+Seguindo essa lógica, talvez, Teresina padrão mais simples como menor variância, menores correlações e menor multicolinearidade facilitando a interpretação dos dados.
+
+```{r echo=TRUE}
+df_teresina$ID = df_teresina$area_de_ponderacao %% 100
+sum(df_teresina$N)
+```
+
+```{r echo=TRUE}
+subset(df_teresina[order(df_teresina$N), ], select = c('ID', 'N'))
+```
+
+## Vetor de médias
+
+### Saneamento
+
+Analisando as variáveis de saneamento percebemos que a cidade tem um bom sistema de água encanada, atingindo um total de 99% de encaneamento de água e não ficando abaixo de 95%.
+
+Já o sistema de esgoto com 88% fica um pouco abaixo, mas nada que podemos considerar ruim. Talvez uma enfâse na rede pública pudesse melhorar a situação.
+
+```{r echo=TRUE}
+lab.corr_saneamento = c('P_AGUAENC', 'P_AGUAENCDENTRO', 'P_AGUAREDE', 'P_ESGOTOPUB', 'P_ESGOTOQUAL')
+lab.corr_moradia = c('P_MATPAREDES', 'P_OVERCROWDING')
+lab.corr_emprego = c('P_DESEMP', 'P_FORTRAB')
+lab.corr_educacao = c('P_ENSFUND', 'P_ENSMED', 'P_ENSSUP', 'P_FREQESCOLA')
+
+lab.corr = c('P_AGUAENC', 'P_AGUAENCDENTRO', 'P_AGUAREDE', 'P_ESGOTOPUB', 'P_ESGOTOQUAL',
+             'P_MATPAREDES', 'P_OVERCROWDING',
+             'P_DESEMP', 'P_FORTRAB',
+             'P_ENSFUND', 'P_ENSMED', 'P_ENSSUP', 'P_FREQESCOLA')
+
+data.frame(as.matrix(colMeans(df_teresina[, lab.corr_saneamento]), 2))
+```
+
+```{r}
+rownames(teste)
+```
+
+### Moradia
+
+Analisando as variáveis de moradia é perceptível que a cidade não tem muitos problemas com isso. 95% da população tem algum tipo de moradia e apenas 5% com mais de 3 pessoas no lar.
+
+```{r}
+data.frame(as.matrix(colMeans(df_teresina[, lab.corr_moradia]), 2))
+```
+
+### Emprego
+
+Considerando que 7% de desemprego é considerado pleno emprego no Brasil, Teresina com 9% ainda tem um pouco a melhorar.
+
+De acordo com a Organização Internacional do Trabalho (OIT), uma taxa de participação da força de trabalho de 60% ou mais é considerada elevada. Seguindo esse parâmetro Teresina está acima da média com 65%.
+
+```{r}
+data.frame(as.matrix(colMeans(df_teresina[, lab.corr_emprego]), 2))
+```
+
+### Educação
+
+A cidade tem boa parte da população frequentando a escola (89%), mas essa taxa cai consideravelmente ao aumentar o nível de escolaridade, chegando a 15% no ensino superior. O que da espaço para políticas públicas para a educação.
+
+```{r}
+data.frame(as.matrix(colMeans(df_teresina[, lab.corr_educacao]), 2))
+```
+
+## Matriz de correlação
+
+### Escolaridade vs Overcrowding = Correlação Negativa
+
+Quanto menor a escolaridade, maior o número de residências com superlotação.
+
+### Overcrowding vs Material Paredes = Correlação Negativa
+
+Quanto maior o número de residências com superlotação, menor o número de domicílios com paredes de materiais duráveis.
+
+### Escolaridade vs Material Paredes = Correlação Positiva
+
+Quanto maior a escolaridade, maior o número de residências com paredes de materiais duráveis.
+
+### Escolaridade vs Esgoto = Correlação Positiva
+
+Quanto maior a escolaridade, maior o acesso a esgoto.
+
+### Material Paredes vs Residência Encanada = Correlação Positiva
+
+Quanto mais residências com paredes de materiais duráveis, mais residências encanadas.
+
+### Escolaridade vs Residência Encanada = Correlação Positiva
+
+Quanto maior a escolaridade, mais residências encanadas.
+
+```{r echo=TRUE}
+ggcorrplot(cor(df_teresina[, lab.corr]), type = "lower", outline.color = "white",
+           lab = TRUE, lab_size = 2)
+```
+
+# 2. Análise Qualitativa PCA
+
+```{r}
+df_teresina_scaled = scale(subset(df_teresina, select = -c(UF, municipality, code, ID)))
+PCA = princomp(df_teresina_scaled)
+```
+
+O primeiro componente explica 53% da variância total, enquanto o segundo 11.4%, terceiro 9.4% e o quarto 7.3%
+
+E segundo a regra de Kaiser os primeiros 4 componentes, 81% da variação, podem precisamente representar os dados.
+
+```{r}
+screeplot(PCA, main = 'Scree Plot (dashed line = Kaiser rule)', type = 'l')
+abline(h = 1, lty = 2)
+
+fviz_eig(PCA, 
+         addlabels = TRUE,
+         main="Figure 2") +
+         geom_hline(yintercept=7, 
+         linetype="dashed", 
+         color = "red")
+```
+
+### Proximidade
+
+As variáveis com maior proximidade são os níveis de escolaridade e acesso a sistema de esgoto, ou seja, a escolaridade está relacionada com acesso à algum tipo de sistema de esgoto na residência.
+
+### Distância
+
+As variáveis com maior distância são superlotação, escolaridade, ou seja, a escolaridade está relacionada com a superpopulação nas residências.
+
+Também percebemos a distância entre a taxa de desemprego e material das paredes, encanamento e frequência escolar. O aumento da taxa de desemprego está relacionada negativamente com esses problemas sociais.
+
+### Distância da Origem e Coloração
+
+Com base na distância da variável em relação ao centro do gráfico percebemos que as variáveis mais bem representadas por esses componentes principais são: acesso a esgoto, escolaridade, encanamento de água, material das paredes e superpopulação.
+
+```{r}
+fviz_pca_var(PCA, col.var = "cos2", gradient.cols = c("red", "grey", "green"))
+```
+
+# 3. Análise Qualitativa EFA
+
+```{r}
+df_teresina_efa = subset(df_teresina, select = -c(UF, municipality, code, ID))
+```
+
+### Critério de Kaiser--Meyer--Olkin
+
+Segundo o critério de Kaiser, talvez a análise fatorial não seja aprorpiada para esses dados já que o teste retornou MSA = 0.24, ou seja, um número baixo significa que as variáveis analisadas não apresentam correlações fortes o suficiente para serem agrupadas em fatores.
+
+```{r}
+KMO(df_teresina_efa)
+```
+
+### Análise Paralela
+
+O gráfico mostra que a curva dos dados reais (linha azul) se aproxima da curva de scree após o quarto fator. Isso sugere que os primeiros quatro fatores explicam a maior parte da variância nos dados.
+
+```{r message=FALSE, warning=FALSE}
+fa.parallel(df_teresina_efa, fa="fa")
+```
+
+### Análise Fatorial
+
+A análise fatorial sugere que 4 ou 5 fatores são capazes de explicar boa proporção da variância dos dados. No entando, a hipótese nula de que 4 e 5 fatores são suficiente não foi rejeitada a 5%, por esse motivo escolhemos apenas 3 fatores.
+
+Porém, 3 fatores explicam apenas 64% da variação total, ou seja, talvez EFA seja inadequada para esse tipo de dados.
+
+```{r}
+EFA5 = factanal(df_teresina_efa, factors = 5, scores = 'regression', nstart = 100)
+EFA4 = factanal(df_teresina_efa, factors = 4, scores = 'regression', nstart = 100)
+EFA3 = factanal(df_teresina_efa, factors = 3, scores = 'regression', nstart = 100)
+EFA5$PVAL
+EFA4$PVAL
+EFA3$PVAL
+```
+
+```{r}
+EFA5$loadings
+```
+
+No gráfico, as cargas fatoriais mais altas são as seguintes:
+
+-   **P_ESGOTOQUAL** (0.9) e **OVERCROWDING** (-0.8) no Fator 1
+
+-   **PAGUAREDE** (1) no Fator 2
+
+-   **P_FREQESCOLA** (0.6) no Fator 3
+
+Podemos interpretar os fatores da seguinte forma:
+
+-   **Fator 1:** Acesso a sistema de esgoto, superpopulação e educação
+
+-   **Fator 2:** Acesso a água encanada e material das paredes
+
+-   **Fator 3:** Escolaridade e desemprego
+
+```{r}
+fa.diagram(EFA3$loadings)
+```
+
+# 4. Efeitos das Regras de Seleção
+
+### Regras de seleção PCA
+
+Uma regra comum é selecionar o número de componentes que explicam uma certa porcentagem da variância total.
+
+Por exemplo, utilizamos essa regra e obtivemos PCA que explica 81% da variação e apenas 4 componentes. Considero um bom resultado com poucas variáveis considerando a quantiade na base de dados.
+
+No entanto, esta regra pode levar à seleção de um número excessivo de componentes se as variáveis originais estiverem altamente correlacionadas.
+
+```{r}
+fviz_eig(PCA, addlabels = TRUE)
+```
+
+Outra regra comum é selecionar o número de componentes que não são significativamente correlacionados entre si.
+
+Por exemplo, poderíamos ter selecionado apenas 3 componentes com 73.8% de explicação da variação total.
+
+Esta regra é menos suscetível ao problema da correlação elevada, mas pode levar à seleção de um número insuficiente de componentes se as variáveis originais forem pouco correlacionadas.
+
+### Regras de seleção EFA
+
+-   **Regra da porcentagem da variância explicada:** Essa regra seleciona o número de componentes que explicam pelo menos 80% da variância total.
+
+-   **Regra do scree plot:** Essa regra consiste em plotar o scree plot, que é um gráfico do autovalor de cada componente contra o número de componente. O ponto de inflexão do scree plot indica o número de componentes a serem selecionados.
+
+No caso dos dados de Teresina utilizamos a **Regra do scree plot** + **Teste de hipótese** isso nos ajuda a obter uma Análise Fatorial mais confiável, combinando % de variação e significância da análise.
+
+**Resultado:** Variação Total Explicada = 64%, P-valor = 0.02.
+
+Poderíamos ter utilizado a **Regra da porcentagem da variância explicada** o que nos traria maior explição da variação total, mas com pouca confiabiliade já que o P-valor acima de 4 componentes não rejeita a hipótese nula.
+
+# 5. Índice de Status Socioeconômico
+
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+```{r}
+data.frame(PCA$loadings[, 1:4])
+```
+
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
