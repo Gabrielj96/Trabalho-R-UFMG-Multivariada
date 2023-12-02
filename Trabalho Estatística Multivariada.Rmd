@@ -8,8 +8,8 @@ output: html_notebook
 ![](pca%20teresina.png)
 
 **Gabriel Augusto Narciso Barreiros\
-Adriano\
-Nelson**
+Adriano José de Barros\
+Nelson Rios**
 
 # 0. Bibliotecas e configurações
 
@@ -189,7 +189,7 @@ df_teresina_efa = subset(df_teresina, select = -c(UF, municipality, code, ID))
 
 ### Critério de Kaiser--Meyer--Olkin
 
-Segundo o critério de Kaiser, talvez a análise fatorial não seja aprorpiada para esses dados já que o teste retornou MSA = 0.24, ou seja, um número baixo significa que as variáveis analisadas não apresentam correlações fortes o suficiente para serem agrupadas em fatores.
+Segundo o critério de Kaiser, talvez a análise fatorial não seja adequada para esses dados já que o teste retornou MSA = 0.24, ou seja, um número baixo significa que as variáveis analisadas não apresentam correlações fortes o suficiente para serem agrupadas em fatores.
 
 ```{r}
 KMO(df_teresina_efa)
