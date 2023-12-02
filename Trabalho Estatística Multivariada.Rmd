@@ -256,6 +256,8 @@ EFA
 
 ```{r}
 EFA = factanal(df_teresina_efa, factors = 3, scores = 'regression', nstart = 100)
+EFA4 = factanal(df_teresina_efa, factors = 4, scores = 'regression', nstart = 100)
+EFA4$PVAL
 EFA$PVAL
 ```
 
