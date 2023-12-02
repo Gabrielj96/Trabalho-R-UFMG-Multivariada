@@ -1,0 +1,22 @@
+
+Call:
+factanal(x = X, factors = 1, scores = "regression")
+
+Uniquenesses:
+   P_ENSFUND     P_ENSMED     P_ENSSUP P_FREQESCOLA 
+       0.014        0.005        0.076        0.841 
+
+Loadings:
+             Factor1
+P_ENSFUND    0.993  
+P_ENSMED     0.998  
+P_ENSSUP     0.961  
+P_FREQESCOLA 0.399  
+
+               Factor1
+SS loadings      3.065
+Proportion Var   0.766
+
+Test of the hypothesis that 1 factor is sufficient.
+The chi square statistic is 33.17 on 2 degrees of freedom.
+The p-value is 6.27e-08 

@@ -1,0 +1,48 @@
+
+Call:
+factanal(x = X, factors = 1, scores = "regression")
+
+Uniquenesses:
+      P_AGUAENC P_AGUAENCDENTRO      P_AGUAREDE     P_ESGOTOPUB    P_ESGOTOQUAL 
+          0.869           0.965           0.839           0.005           0.034 
+
+Loadings:
+                Factor1
+P_AGUAENC       0.362  
+P_AGUAENCDENTRO 0.188  
+P_AGUAREDE      0.402  
+P_ESGOTOPUB     0.998  
+P_ESGOTOQUAL    0.983  
+
+               Factor1
+SS loadings      2.288
+Proportion Var   0.458
+
+Test of the hypothesis that 1 factor is sufficient.
+The chi square statistic is 62.17 on 5 degrees of freedom.
+The p-value is 4.32e-12 
+
+
+Call:
+factanal(x = X, factors = 2, scores = "regression")
+
+Uniquenesses:
+      P_AGUAENC P_AGUAENCDENTRO      P_AGUAREDE     P_ESGOTOPUB    P_ESGOTOQUAL 
+          0.324           0.959           0.040           0.030           0.005 
+
+Loadings:
+                Factor1 Factor2
+P_AGUAENC       0.148   0.809  
+P_AGUAENCDENTRO 0.203          
+P_AGUAREDE      0.144   0.969  
+P_ESGOTOPUB     0.945   0.278  
+P_ESGOTOQUAL    0.973   0.219  
+
+               Factor1 Factor2
+SS loadings      1.924   1.718
+Proportion Var   0.385   0.344
+Cumulative Var   0.385   0.728
+
+Test of the hypothesis that 2 factors are sufficient.
+The chi square statistic is 0.25 on 1 degree of freedom.
+The p-value is 0.618 
