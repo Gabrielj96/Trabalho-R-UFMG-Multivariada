@@ -11,6 +11,8 @@ output: html_notebook
 Adriano José de Barros\
 Nelson Rios**
 
+<https://github.com/Gabrielj96/Trabalho-R-UFMG-Multivariada>
+
 # 0. Bibliotecas e configurações
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
