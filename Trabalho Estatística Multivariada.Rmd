@@ -80,7 +80,15 @@ lab.corr = c('P_AGUAENC', 'P_AGUAENCDENTRO', 'P_AGUAREDE', 'P_ESGOTOPUB', 'P_ESG
              'P_DESEMP', 'P_FORTRAB',
              'P_ENSFUND', 'P_ENSMED', 'P_ENSSUP', 'P_FREQESCOLA')
 
-data.frame(as.matrix(colMeans(df_teresina[, lab.corr_saneamento]), 2))
+saneamento = data.frame(as.matrix(colMeans(df_teresina[, lab.corr_saneamento]), 2))
+
+barplot(saneamento$as.matrix.colMeans.df_teresina...lab.corr_saneamento....2.,
+main = "Vetor de médias (Saneamento)",
+ylab = "Proporções (médias)",
+names.arg = row.names(saneamento),
+col = "darkred",
+las=2,
+cex.names=0.45)
 ```
 
 ### Moradia
@@ -88,7 +96,15 @@ data.frame(as.matrix(colMeans(df_teresina[, lab.corr_saneamento]), 2))
 Analisando as variáveis de moradia é perceptível que a cidade não tem muitos problemas com isso. 95% da população tem algum tipo de moradia e apenas 5% com mais de 3 pessoas no lar.
 
 ```{r}
-data.frame(as.matrix(colMeans(df_teresina[, lab.corr_moradia]), 2))
+moradia = data.frame(as.matrix(colMeans(df_teresina[, lab.corr_moradia]), 2))
+
+barplot(moradia$as.matrix.colMeans.df_teresina...lab.corr_moradia....2.,
+main = "Vetor de médias (moradia)",
+ylab = "Proporções (médias)",
+names.arg = row.names(moradia),
+col = "darkred",
+las=2,
+cex.names=0.45)
 ```
 
 ### Emprego
@@ -98,7 +114,15 @@ Considerando que 7% de desemprego é considerado pleno emprego no Brasil, Teresi
 De acordo com a Organização Internacional do Trabalho (OIT), uma taxa de participação da força de trabalho de 60% ou mais é considerada elevada. Seguindo esse parâmetro Teresina está acima da média com 65%.
 
 ```{r}
-data.frame(as.matrix(colMeans(df_teresina[, lab.corr_emprego]), 2))
+emprego = data.frame(as.matrix(colMeans(df_teresina[, lab.corr_emprego]), 2))
+
+barplot(emprego$as.matrix.colMeans.df_teresina...lab.corr_emprego....2.,
+main = "Vetor de médias (emprego)",
+ylab = "Proporções (médias)",
+names.arg = row.names(emprego),
+col = "darkred",
+las=2,
+cex.names=0.45)
 ```
 
 ### Educação
@@ -106,7 +130,15 @@ data.frame(as.matrix(colMeans(df_teresina[, lab.corr_emprego]), 2))
 A cidade tem boa parte da população frequentando a escola (89%), mas essa taxa cai consideravelmente ao aumentar o nível de escolaridade, chegando a 15% no ensino superior. O que da espaço para políticas públicas para a educação.
 
 ```{r}
-data.frame(as.matrix(colMeans(df_teresina[, lab.corr_educacao]), 2))
+educacao = data.frame(as.matrix(colMeans(df_teresina[, lab.corr_educacao]), 2))
+
+barplot(educacao$as.matrix.colMeans.df_teresina...lab.corr_educacao....2.,
+main = "Vetor de médias (educacao)",
+ylab = "Proporções (médias)",
+names.arg = row.names(educacao),
+col = "darkred",
+las=2,
+cex.names=0.45)
 ```
 
 ## Matriz de correlação
@@ -345,3 +377,15 @@ p = ggplot(data = sf.obj) +
 #  ggsn::north(sf.obj)
 print(p)
 ```
+
+# 6. Conclusões
+
+-   A cidade, no geral, tem boas métricas de desenvolvimento, mas o setor da educação precisa ser melhorado.
+
+-   Melhorando a educação melhoraria boa parte dos problemas sociais da cidade já que está fortemente correlacionada com várias variável.
+
+-   Teresina poderia melhorar o sistema de esgoto de rede pública.
+
+-   A melhorando as oportunidades de emprego poderia melhorar a frequência escolar e consequentemente os outros problemas sociais.
+
+-   Tanto no mapa PCA quanto no EFA percebemos melhor qualidade de vida no centro da cidade enquanto nos extremos norte e sul uma situação mais precária.
